@@ -6,7 +6,38 @@
 let prompt = require('prompt-sync')();
 let storeOpen = true;
 let currentDate = new Date();
-let warenkorb = []
+let warenkorb = [{
+    name: 'Mango',
+    anzahlKisten: 2,
+    anzahlProKiste: 12,
+    preis: 1.10,
+    verkauf: 0,
+    verluste: 0
+},
+{
+    name: 'Banane',
+    anzahlKisten: 3,
+    anzahlProKiste: 30,
+    preis: 0.70,
+    verkauf: 0,
+    verluste: 0
+},
+{
+    name: 'Birne',
+    anzahlKisten: 2,
+    anzahlProKiste: 10,
+    preis: 1.40,
+    verkauf: 0,
+    verluste: 0
+},
+{
+    name: 'Apfel',
+    anzahlKisten: 3,
+    anzahlProKiste: 12,
+    preis: 0.90,
+    verkauf: 0,
+    verluste: 0
+}]
 let bestand = [{
         name: 'Mango',
         anzahlKisten: 2,
@@ -139,17 +170,37 @@ function mergeWarenkorb() {
 
 }
 
-function pushWarenkorb(obstVar, mengeVar) {
+// THIS SHIT DOESN'T WORK!!!
+
+function duplicateCheck(obstVar) {
+    let index, index0, index1, index2, index3, index4;
     if (warenkorb.length == 0) {
-        warenkorb.push(kaufObst(obstVar, mengeVar));
-    } else {
-        for (k in warenkorb) {
-            if (warenkorb[k].name == obstVar) {
-                Number(warenkorb[k].menge) += Number(mengeVar);
-                Number(warenkorb[k].preis) = Number(warenkorb[k].preis) * Number(warenkorb[k].menge); // Fix THIS!!!
-            } else {
-                warenkorb.push(kaufObst(obstVar, mengeVar));
-            }
+        return false;
+    };
+    for (let i = 0; i <= warenkorb.length; i++) {
+        if (obstVar == !warenkorb[i].name) {
+            index = false;
+        } else {
+            index = true;
+        }
+        switch (i) {
+            case 0:
+                index0 = index;
+                return index0;
+            case 1:
+                index1 = index;
+                return index1;
+            case 2:
+                index2 = index;
+                return index2;
+            case 3:
+                index3 = index;
+                return index3;
+            case 4:
+                index4 = index;
+                return index4;
+            default:
+                break;
         }
     }
 }
@@ -162,7 +213,7 @@ function kaufObstMenu() {
 
     console.log('\n-- Unser Sortiment --\n');
     for (k in bestand) {
-        bestandList += + k + 1 + ': ' + bestand[k].name + ' - '
+        bestandList += +k + 1 + ': ' + bestand[k].name + ' - '
     }
     console.log(bestandList.slice(0, -3) + '\n');
 
@@ -181,35 +232,45 @@ function kaufObstMenu() {
             // Mango
             obstVar = bestand[0].name;
             mengeVar = prompt(obstVar + ' - Menge: ');
-            pushWarenkorb(obstVar, mengeVar);
+            console.log( duplicateCheck(obstVar) );
+            if (duplicateCheck(obstVar) === true) {
+                mergeWarenkorb();
+                console.log('merge here')
+            } else {
+                warenkorb.push(obstInKorb(obstVar, mengeVar));
+            };
             kaufObstMenu();
             break;
         case '2':
             // Banane
             obstVar = bestand[1].name;
             mengeVar = prompt(obstVar + ' - Menge: ');
-            pushWarenkorb(obstVar, mengeVar);
+            console.log( duplicateCheck(obstVar) ); // DELETE LATER
+            warenkorb.push(obstInKorb(obstVar, mengeVar));
             kaufObstMenu();
             break;
         case '3':
             // Birne
             obstVar = bestand[2].name;
             mengeVar = prompt(obstVar + ' - Menge: ');
-            pushWarenkorb(obstVar, mengeVar);
+            console.log( duplicateCheck(obstVar) ); // DELETE LATER
+            duplicateCheck(obstVar, mengeVar, obstKaufVar);
             kaufObstMenu();
             break;
         case '4':
             // Aprikose
             obstVar = bestand[3].name;
             mengeVar = prompt(obstVar + ' - Menge: ');
-            pushWarenkorb(obstVar, mengeVar);
+            console.log( duplicateCheck(obstVar) ); // DELETE LATER
+            duplicateCheck(obstVar, mengeVar, obstKaufVar);
             kaufObstMenu();
             break;
         case '5':
             // Apfel
             obstVar = bestand[4].name;
             mengeVar = prompt(obstVar + ' - Menge: ');
-            pushWarenkorb(obstVar, mengeVar);
+            console.log( duplicateCheck(obstVar) ); // DELETE LATER
+            duplicateCheck(obstVar, mengeVar, obstKaufVar);
             kaufObstMenu();
             break;
         case 'w':
@@ -259,12 +320,11 @@ function warenkorbZeigen() {
     }
 }
 
-function kaufObst(inputObst, inputMenge) {
+function obstInKorb(inputObst, inputMenge) {
     let warenkorbObj;
     for (ele in bestand) {
         if (inputObst == bestand[ele].name) {
-            warenkorbObj = 
-            {
+            warenkorbObj = {
                 name: bestand[ele].name,
                 preis: (bestand[ele].preis * inputMenge),
                 menge: inputMenge
