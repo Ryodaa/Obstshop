@@ -246,6 +246,16 @@ function rechnung(gesamtPreis) {
     };
 };
 
+// FINISH THIS SHIT!!!
+
+function updateBestand() {
+    for (k in bestand) {
+        for (i in warenkorb) {
+            console.log('Platzhalter');
+        }
+    }
+};
+
 function kassenMenu(gesamtPreis) {
     console.clear();
     console.log('-- Kasse --\n');
@@ -254,6 +264,7 @@ function kassenMenu(gesamtPreis) {
     console.log('\nKaufen: 1 - Abbrechen: "r" ');
     let kassenPrompt = prompt('Eingabe: ');
     if (kassenPrompt == 1) {
+        updateBestand();
         rechnung(gesamtPreis);
     } else if (kassenPrompt == 'r') {
         warenkorbZeigen();
