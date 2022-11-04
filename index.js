@@ -1,13 +1,6 @@
-// 202211021049 Sven Elberfeld
-//Mein kleiner Mini ObstShop
-
-//Datenstruktur des ObstShop
-
-
 let prompt = require('prompt-sync')();
 let storeOpen = true;
-let currentDate = new Date();
-let running = true;
+let umsatzArr = [];
 let warenkorb = [];
 let bestand = [{
         name: 'Mango',
@@ -15,7 +8,7 @@ let bestand = [{
         anzahlProKiste: 12,
         preis: 1.10,
         verkauf: 0,
-        verluste: 0
+        resteKiste: 0
     },
     {
         name: 'Banane',
@@ -23,7 +16,7 @@ let bestand = [{
         anzahlProKiste: 30,
         preis: 0.70,
         verkauf: 0,
-        verluste: 0
+        resteKiste: 0
     },
     {
         name: 'Birne',
@@ -31,7 +24,7 @@ let bestand = [{
         anzahlProKiste: 10,
         preis: 1.40,
         verkauf: 0,
-        verluste: 0
+        resteKiste: 0
     },
     {
         name: 'Aprikose',
@@ -39,7 +32,7 @@ let bestand = [{
         anzahlProKiste: 25,
         preis: 0.30,
         verkauf: 0,
-        verluste: 0
+        resteKiste: 0
     },
     {
         name: 'Apfel',
@@ -47,7 +40,7 @@ let bestand = [{
         anzahlProKiste: 12,
         preis: 0.90,
         verkauf: 0,
-        verluste: 0
+        resteKiste: 0
     }
 ];
 
@@ -77,9 +70,47 @@ function mainMenu() {
     };
 };
 
+function umsatzMenu() {
+    console.clear();
+    console.log('-- Umsätze --');
+    let gesamtGewinn = null;
+    if (umsatzArr > 0) {
+        for (k in umsatzArr) {
+            gesamtGewinn = Number(gesamtGewinn) + Number(umsatzArr[k].gesPreis);
+            console.log('\nVerkauf ' + (Number(k) + 1) + ': ' + umsatzArr[k].gesPreis + '€');
+            console.log('Datum: ' + umsatzArr[k].datum);
+        }
+        console.log('\n-----\nGesamtgewinn: ' + gesamtGewinn.toFixed(2) + '€\n')
+    } else {
+        console.log('\nKeine Verkäufe vorhanden.');
+        console.log('\n-----\nGesamtgewinn: 0.00€\n')
+    }
+    prompt('Zurück: "Enter" ');
+    adminMenu();
+}
+
+function rechnungMenu() {
+    console.clear();
+    console.log('-- Rechnungen --');
+    let gesamtAusgaben = null;
+    if (umsatzArr > 0) {
+        for (k in umsatzArr) {
+            gesamtAusgaben = Number(gesamtAusgaben) + Number(umsatzArr[k].gesPreis);
+            console.log('\nRechnung ' + (Number(k) + 1) + ': ' + umsatzArr[k].gesPreis + '€');
+            console.log('Datum: ' + umsatzArr[k].datum);
+        }
+        console.log('\n-----\nGesamtausgaben: ' + gesamtAusgaben.toFixed(2) + '€\n')
+    } else {
+        console.log('\nKeine Rechnungen vorhanden.');
+        console.log('\n-----\nGesamtausgaben: 0.00€\n')
+    }
+    prompt('Zurück: "Enter" ');
+    kundeMenu();
+};
+
 function adminMenu() {
     console.clear();
-    console.log('\nMenu Bar: - "r": Zurück - ' + '"q": Beenden - ');
+    console.log('\nMenu Bar: - "r": Zurück - "q": Beenden');
     console.log('\n-- Admin Menu --\n');
     console.log('Was wollen sie tun?:');
     console.log(` - Bestand anzeigen: 1\n - Umsatz ermitteln: 2\n - Laden öffnen:     3\n - Laden schließen:  4\n`);
@@ -90,7 +121,7 @@ function adminMenu() {
             bestandObst();
             break;
         case '2':
-            umsatzObst();
+            umsatzMenu();
             break;
         case '3':
             openStore();
@@ -147,6 +178,8 @@ function kundeMenu() {
             case 'q':
                 quitProgram();
                 break;
+            case '3':
+                rechnungMenu();
             default:
                 break;
         };
@@ -188,7 +221,7 @@ function chkBestandLimit(obstVar, mengeVar) {
         for (k in bestand) {
             for (i in warenkorb) {
                 if (bestand[k].name == warenkorb[i].name && obstVar == warenkorb[i].name) {
-                    if (Number(bestand[k].anzahlKisten) * Number(bestand[k].anzahlProKiste) < Number(warenkorb[i].menge) + Number(mengeVar)) {
+                    if (Number(bestand[k].anzahlKisten) * Number(bestand[k].anzahlProKiste) + Number(bestand[k].resteKiste) < Number(warenkorb[i].menge) + Number(mengeVar)) {
                         return true;
                     };
                 };
@@ -197,7 +230,7 @@ function chkBestandLimit(obstVar, mengeVar) {
     } else {
         for (k in bestand) {
             if (obstVar == bestand[k].name) {
-                if (Number(bestand[k].anzahlKisten) * Number(bestand[k].anzahlProKiste) < mengeVar) {
+                if (Number(bestand[k].anzahlKisten) * Number(bestand[k].anzahlProKiste) + Number(bestand[k].resteKiste) < mengeVar) {
                     return true;
                 };
             };
@@ -216,6 +249,14 @@ function quitProgram() {
     process.exit();
 };
 
+function dateTime() {
+    let currentDate = new Date();
+    let minuten = currentDate.getMinutes() < 10 ? '0' + currentDate.getMinutes() : currentDate.getMinutes();
+    let sekunden = currentDate.getSeconds() < 10 ? '0' + currentDate.getSeconds() : currentDate.getSeconds();
+    let theDate = currentDate.getDate() + '/' + currentDate.getMonth() + '/' + currentDate.getFullYear() + ' - ' + currentDate.getHours() + ':' + minuten + ':' + sekunden;
+    return theDate;
+};
+
 function rechnung(gesamtPreis) {
     console.clear();
     console.log('-- Rechnung --');
@@ -225,14 +266,16 @@ function rechnung(gesamtPreis) {
         console.log('Preis: ' + Number(warenkorb[k].preis).toFixed(2) + '€\n');
     };
     console.log('-----\nGesamtpreis        : ' + gesamtPreis.toFixed(2) + '€\n');
-    console.log('Danke für ihren Einkauf bei iObst');
+    console.log('Danke für ihren Einkauf bei iObst\n');
+    console.log('Zurück: "r" - Beenden: "q"');
     let rechnungPrompt = prompt('Eingabe: ');
-    console.log('Nochmal Kaufen: 1 - Zurück: "r"' - 'Beenden: "q"');
-    while(true) {
-        if (rechnungPrompt == 1) {
-            buyAgain();
-            break;
-        } else if (rechnungPrompt == 'r') {
+    while (true) {
+        if (rechnungPrompt == 'r') {
+            umsatzArr.push({
+                gesPreis: gesamtPreis.toFixed(2),
+                datum: dateTime()
+            });
+            warenkorb = [];
             kaufObstMenu();
             break;
         } else if (rechnungPrompt == 'q') {
@@ -246,14 +289,22 @@ function rechnung(gesamtPreis) {
     };
 };
 
-// FINISH THIS SHIT!!!
-
 function updateBestand() {
-    for (k in bestand) {
-        for (i in warenkorb) {
-            console.log('Platzhalter');
-        }
-    }
+    let newBestand;
+    let reste;
+    for (k in warenkorb) {
+        for (i in bestand) {
+            if (bestand[i].name == warenkorb[k].name) {
+                bestand[i].verkauf = warenkorb[k].menge;
+                newBestand = (bestand[i].anzahlKisten * bestand[i].anzahlProKiste + bestand[i].resteKiste);
+                newBestand -= warenkorb[k].menge;
+                reste = newBestand % bestand[i].anzahlKisten;
+                newBestand = (newBestand - reste) / bestand[i].anzahlKisten;
+                bestand[i].anzahlProKiste = newBestand;
+                bestand[i].resteKiste += reste;
+            };
+        };
+    };
 };
 
 function kassenMenu(gesamtPreis) {
@@ -373,11 +424,14 @@ function kaufObstMenu() {
 
 function bestandObst() {
     console.clear();
-    console.log('Lager bestand:\n');
-    for (ele in bestand) {
-        console.log(bestand[ele].name + ' - Anzahl Kisten: ' + bestand[ele].anzahlKisten + ' - Anzahl pro Kiste: ' + bestand[ele].anzahlProKiste + ' - Anzahl Früchte gesamt: ' + bestand[ele].anzahlProKiste * bestand[ele].anzahlKisten);
+    console.log('-- Lager bestand: --');
+    for (k in bestand) {
+        console.log(`\n${bestand[k].name}: 
+        Anzahl:        Kisten : ${bestand[k].anzahlKisten}
+        Anzahl:     pro Kiste : ${bestand[k].anzahlProKiste}
+        Anzahl: aller Früchte : ${(bestand[k].anzahlProKiste * bestand[k].anzahlKisten + bestand[k].resteKiste)}`);
     };
-    prompt('Zurück: "Enter" ');
+    prompt('\nZurück: "Enter" ');
     adminMenu();
 };
 
@@ -385,7 +439,6 @@ function warenkorbZeigen() {
     console.clear();
     console.log('\n-- Warenkorb: --');
     let gesamtPreis = 0;
-    let preisVar;
     if (warenkorb.length > 0) {
         for (k in warenkorb) {
             console.log('\nName: ' + warenkorb[k].name);
@@ -453,10 +506,4 @@ function openStore() {
     adminMenu();
 };
 
-while (running === true) {
-    mainMenu();
-};
-
-//bestandObst();
-// console.log(kaufObst(inputObst, inputMenge));
-// openOrCloseStore();
+mainMenu();
