@@ -74,7 +74,7 @@ function umsatzMenu() {
     console.clear();
     console.log('-- Umsätze --');
     let gesamtGewinn = null;
-    if (umsatzArr > 0) {
+    if (umsatzArr.length > 0) {
         for (k in umsatzArr) {
             gesamtGewinn = Number(gesamtGewinn) + Number(umsatzArr[k].gesPreis);
             console.log('\nVerkauf ' + (Number(k) + 1) + ': ' + umsatzArr[k].gesPreis + '€');
@@ -93,7 +93,7 @@ function rechnungMenu() {
     console.clear();
     console.log('-- Rechnungen --');
     let gesamtAusgaben = null;
-    if (umsatzArr > 0) {
+    if (umsatzArr.length > 0) {
         for (k in umsatzArr) {
             gesamtAusgaben = Number(gesamtAusgaben) + Number(umsatzArr[k].gesPreis);
             console.log('\nRechnung ' + (Number(k) + 1) + ': ' + umsatzArr[k].gesPreis + '€');
